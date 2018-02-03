@@ -1,0 +1,126 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SpinningCube.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tester.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tokenizer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Joint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Skin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Tokenizer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Tester.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SpinningCube.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Core.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Joint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DOF.hpp">
+      <Filter>HPP Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Skeleton.hpp">
+      <Filter>HPP Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertex.hpp">
+      <Filter>HPP Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Triangle.hpp">
+      <Filter>HPP Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Skin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{a9e2fe77-5141-43b9-8f45-56bc5dd73f76}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{3c725d54-0a57-4086-b51f-65519d97e865}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_skel Files">
+      <UniqueIdentifier>{b4bcb0bf-c00b-4e37-b262-a596a298877b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="HPP Files">
+      <UniqueIdentifier>{ee28b426-53dc-4045-8199-83297fb03d31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_skin Files">
+      <UniqueIdentifier>{c0f9bc65-3e18-49ee-8257-0393c1e0dcb5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{b900d703-119d-4043-9e72-ae71b792e037}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="_skels\dragon.skel">
+      <Filter>_skel Files</Filter>
+    </None>
+    <None Include="_skels\test.skel">
+      <Filter>_skel Files</Filter>
+    </None>
+    <None Include="_skels\wasp.skel">
+      <Filter>_skel Files</Filter>
+    </None>
+    <None Include="_skins\tube_smooth.skin">
+      <Filter>_skin Files</Filter>
+    </None>
+    <None Include="_skins\wasp.skin">
+      <Filter>_skin Files</Filter>
+    </None>
+    <None Include="_skels\tube.skel">
+      <Filter>_skel Files</Filter>
+    </None>
+    <None Include="_skins\triangle.skin">
+      <Filter>_skin Files</Filter>
+    </None>
+    <None Include="Model.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Wireframe.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="_skins\head.skin">
+      <Filter>_skin Files</Filter>
+    </None>
+    <None Include="_skels\head.skel">
+      <Filter>_skel Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>
