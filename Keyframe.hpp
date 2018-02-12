@@ -12,17 +12,12 @@
 
 class Keyframe {
 public:
-	Keyframe(float time, float value, float tanIn, float tanOut)
+	Keyframe(float time, float value, char ruleIn, char ruleOut)
 		: Time(time)
 		, Value(value)
-		, TangentIn(tanIn)
-		, TangentOut(tanOut)
+		, RuleIn(ruleIn)
+		, RuleOut(ruleOut)
 	{
-		// Default smooth tangents
-		RuleIn = RuleOut = 's';
-
-		// Default cubic coefficients
-		A = B = C = D = 1.0f;
 	};
 
 	// Setters /////////////////////////////////////////////////////////////////

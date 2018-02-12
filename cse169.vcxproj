@@ -51,6 +51,7 @@
     <None Include="Model.glsl" />
     <None Include="packages.config" />
     <None Include="Wireframe.glsl" />
+    <None Include="_anims\sample.anim" />
     <None Include="_anims\wasp_walk.anim" />
     <None Include="_rigs\wasp.rig" />
     <None Include="_skels\dragon.skel" />

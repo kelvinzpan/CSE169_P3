@@ -146,5 +146,8 @@
     <None Include="_rigs\wasp.rig">
       <Filter>_rig Files</Filter>
     </None>
+    <None Include="_anims\sample.anim">
+      <Filter>_anim Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
