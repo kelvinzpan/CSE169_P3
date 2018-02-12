@@ -9,6 +9,8 @@
 #include "SpinningCube.h"
 #include "Skeleton.hpp"
 #include "Skin.h"
+#include "Animation.hpp"
+#include "AnimationPlayer.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -49,6 +51,8 @@ private:
 	Skeleton *Skell;
 	Skin *Body;
 	Camera *Cam;
+	Animation *Anim;
+	AnimationPlayer *AnimPlayer;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

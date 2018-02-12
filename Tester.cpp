@@ -67,12 +67,16 @@ Tester::Tester(const char *windowTitle,int argc,char **argv) {
 
 	char * defaultModel = "./_skels/wasp.skel";
 	char * defaultSkin = "./_skins/wasp.skin";
-	if (argc > 2) {
+	char * defaultAnim = "./_anims/wasp_walk.anim";
+	if (argc > 3) {
 		defaultModel = argv[1];
 		defaultSkin = argv[2];
+		defaultAnim = argv[3];
 	}
 	Skell = new Skeleton(defaultModel);
 	Body = new Skin(defaultSkin, Skell);
+	Anim = new Animation(defaultAnim);
+	AnimPlayer = new AnimationPlayer(Anim, Skell);
 	Cam=new Camera;
 	Cam->SetAspect(float(WinX)/float(WinY));
 

@@ -66,6 +66,18 @@
     <ClInclude Include="Skin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Keyframe.hpp">
+      <Filter>HPP Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Channel.hpp">
+      <Filter>HPP Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation.hpp">
+      <Filter>HPP Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationPlayer.hpp">
+      <Filter>HPP Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
@@ -85,6 +97,12 @@
     </Filter>
     <Filter Include="Shaders">
       <UniqueIdentifier>{b900d703-119d-4043-9e72-ae71b792e037}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_anim Files">
+      <UniqueIdentifier>{c7e473d5-0ef1-4647-8a34-5b8cf98e1c13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_rig Files">
+      <UniqueIdentifier>{b09dcf9b-6c74-4665-b35d-885f7923cb25}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -121,6 +139,12 @@
     </None>
     <None Include="_skels\head.skel">
       <Filter>_skel Files</Filter>
+    </None>
+    <None Include="_anims\wasp_walk.anim">
+      <Filter>_anim Files</Filter>
+    </None>
+    <None Include="_rigs\wasp.rig">
+      <Filter>_rig Files</Filter>
     </None>
   </ItemGroup>
 </Project>

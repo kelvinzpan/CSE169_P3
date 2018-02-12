@@ -29,10 +29,14 @@
     <ClCompile Include="Tokenizer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Animation.hpp" />
+    <ClInclude Include="AnimationPlayer.hpp" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Channel.hpp" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="DOF.hpp" />
     <ClInclude Include="Joint.h" />
+    <ClInclude Include="Keyframe.hpp" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Skeleton.hpp" />
@@ -47,6 +51,8 @@
     <None Include="Model.glsl" />
     <None Include="packages.config" />
     <None Include="Wireframe.glsl" />
+    <None Include="_anims\wasp_walk.anim" />
+    <None Include="_rigs\wasp.rig" />
     <None Include="_skels\dragon.skel" />
     <None Include="_skels\head.skel" />
     <None Include="_skels\test.skel" />
