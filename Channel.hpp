@@ -93,16 +93,243 @@ public:
 
 	////////////////////////////////////////////////////////////////////////////
 
+	void Precompute()
+	{
+		// Compute tangents from given rules
+		for (unsigned int i = 0; i < this->Keys.size(); i++)
+		{
+			Keyframe key = this->Keys[i];
+
+			// Calculate rule in
+			if (key.GetRuleIn() == 'f')
+			{
+				// Fixed tangent
+				key.SetTangentIn(0.0f);
+			}
+			else if (key.GetRuleIn() == 'l' && i != 0)
+			{
+				// Linear tangent, invalid for first key
+				Keyframe prevKey = this->Keys[i - 1];
+				key.SetTangentIn((key.GetValue() - prevKey.GetValue()) / (key.GetTime() - prevKey.GetTime()));
+
+			}
+			else if (key.GetRuleIn() == 's' && i != 0 && i != this->Keys.size() - 1)
+			{
+				// Smooth tangent, invalid for first and last keys
+				Keyframe prevKey = this->Keys[i - 1];
+				Keyframe nextKey = this->Keys[i + 1];
+				key.SetTangentIn((nextKey.GetValue() - prevKey.GetValue()) / (nextKey.GetTime() - prevKey.GetTime()));
+			}
+
+			// Calculate rule out
+			if (key.GetRuleOut() == 'f')
+			{
+				// Fixed tangent
+				key.SetTangentIn(0.0f);
+			}
+			else if (key.GetRuleOut() == 'l' && i != this->Keys.size() - 1)
+			{
+				// Linear tangent, invalid for last key
+				Keyframe nextKey = this->Keys[i + 1];
+				key.SetTangentIn((nextKey.GetValue() - key.GetValue()) / (nextKey.GetTime() - key.GetTime()));
+
+			}
+			else if (key.GetRuleIn() == 's' && i != 0 && i != this->Keys.size() - 1)
+			{
+				// Smooth tangent, invalid for first and last keys
+				Keyframe prevKey = this->Keys[i - 1];
+				Keyframe nextKey = this->Keys[i + 1];
+				key.SetTangentIn((nextKey.GetValue() - prevKey.GetValue()) / (nextKey.GetTime() - prevKey.GetTime()));
+			}
+		}
+
+		// Compute cubic coefficients from tangents and other data
+		glm::mat4x4 hermiteMat;
+		hermiteMat[0] = { 2, -3, 0, 1 };
+		hermiteMat[1] = { -2, 3, 0, 0 };
+		hermiteMat[2] = { 1, -2, 1, 0 };
+		hermiteMat[3] = { 1, -1, 0, 0 };
+
+		// First keyframe in each span holds the coefficients
+		for (unsigned int i = 0; i < this->Keys.size() - 1; i++)
+		{
+			Keyframe key = this->Keys[i];
+			Keyframe nextKey = this->Keys[i + 1];
+
+			float timeDiff = nextKey.GetTime() - key.GetTime();
+			glm::vec4 hermiteVec = glm::vec4(key.GetValue(), nextKey.GetValue(),
+				timeDiff * key.GetTangentOut(), timeDiff * nextKey.GetTangentIn());
+			hermiteVec = hermiteMat * hermiteVec;
+
+			key.SetCubicCoeff(hermiteVec.x, hermiteVec.y, hermiteVec.z, hermiteVec.w);
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+
 	float Evaluate(float time)
 	{
+		// Case 1: before the first key
+		if (time < this->Keys[0].GetTime())
+		{
+			// Extrapolate
+			if (this->ExtrapIn == "constant")
+			{
+				return this->Keys[0].GetValue(); // Backwards, get first
+			}
+			else if (this->ExtrapIn == "linear")
+			{
+				float slope = this->Keys[0].GetTangentOut(); // Backwards, get first
+				float t = this->Keys[0].GetTime();
+				return this->Keys[0].GetValue() - slope * (t - time); // Backwards, subtract
+			}
+			else if (this->ExtrapIn == "cycle")
+			{
+				float timeDiff = this->Keys[this->Keys.size() - 1].GetTime() - this->Keys[0].GetTime();
+				while (time < this->Keys[0].GetTime()) time += timeDiff; // Backwards, add
+				return this->Evaluate(time);
+			}
+			else if (this->ExtrapIn == "cycle_offset")
+			{
+				float timeDiff = this->Keys[this->Keys.size() - 1].GetTime() - this->Keys[0].GetTime();
+				float valDiff = this->Keys[this->Keys.size() - 1].GetValue() - this->Keys[0].GetValue();
+				float offset = 0;
+				while (time < this->Keys[0].GetTime()) // Backwards, add
+				{
+					time += timeDiff;
+					offset -= valDiff; // Backwards, subtract
+				}
+				return offset + this->Evaluate(time);
+			}
+			else if (this->ExtrapIn == "bounce")
+			{
+				float timeDiff = this->Keys[this->Keys.size() - 1].GetTime() - this->Keys[0].GetTime();
+				int count = 0;
+				while (time < this->Keys[0].GetTime()) { // Backwards, add
+					time += timeDiff;
+					count++;
+				}
+				if (count % 2 == 0) { // Even, reflect
+					time = this->Keys[0].GetTime() + timeDiff - time;
+					return this->Evaluate(time);
+				}
+				else // Odd, keep
+				{
+					return this->Evaluate(time);
+				}
+			}
+			else
+			{
+				std::cerr << "No ExtrapIn rule detected." << std::endl;
+				return 0.0f;
+			}
+		}
+		// Case 2: after the last key
+		else if (time > this->Keys[this->Keys.size() - 1].GetTime())
+		{
+			// Extrapolate
+			if (this->ExtrapOut == "constant")
+			{
+				return this->Keys[this->Keys.size() - 1].GetValue(); // Forwards, get last
+			}
+			else if (this->ExtrapOut == "linear")
+			{
+				float slope = this->Keys[this->Keys.size() - 1].GetTangentIn(); // Forwards, get last
+				float t = this->Keys[this->Keys.size() - 1].GetTime();
+				return this->Keys[this->Keys.size() - 1].GetValue() + slope * (time - t); // Forwards, add
+			}
+			else if (this->ExtrapOut == "cycle")
+			{
+				float timeDiff = this->Keys[this->Keys.size() - 1].GetTime() - this->Keys[0].GetTime();
+				while (time > this->Keys[this->Keys.size() - 1].GetTime()) time -= timeDiff; // Forwards, subtract
+				return this->Evaluate(time);
+			}
+			else if (this->ExtrapOut == "cycle_offset")
+			{
+				float timeDiff = this->Keys[this->Keys.size() - 1].GetTime() - this->Keys[0].GetTime();
+				float valDiff = this->Keys[this->Keys.size() - 1].GetValue() - this->Keys[0].GetValue();
+				float offset = 0;
+				while (time > this->Keys[this->Keys.size() - 1].GetTime()) // Forwards, subtract
+				{
+					time -= timeDiff;
+					offset += valDiff; // Forwards, add
+				}
+				return offset + this->Evaluate(time);
+			}
+			else if (this->ExtrapOut == "bounce")
+			{
+				float timeDiff = this->Keys[this->Keys.size() - 1].GetTime() - this->Keys[0].GetTime();
+				int count = 0;
+				while (time > this->Keys[this->Keys.size() - 1].GetTime()) { // Forwards, subtract
+					time += timeDiff;
+					count++;
+				}
+				if (count % 2 == 0) { // Even, reflect
+					time = this->Keys[0].GetTime() + timeDiff - time;
+					return this->Evaluate(time);
+				}
+				else // Odd, keep
+				{
+					return this->Evaluate(time);
+				}
+			}
+			else
+			{
+				std::cerr << "No ExtrapOut rule detected." << std::endl;
+				return 0.0f;
+			}
+		}
+		// Case 3: within a key
+		else
+		{
+			// Binary search for the span
+			int l = 0;
+			int r = this->Keys.size() - 1;
 
+			while (l <= r)
+			{
+				int m = l + (r - l) / 2;
+				Keyframe mkey = this->Keys[m];
 
-		return 0.0f;
+				// Exact match
+				if (mkey.GetTime() == time)
+				{
+					return mkey.GetValue();
+				}
+
+				// Keep searching
+				if (mkey.GetTime() < time)
+				{
+					l = m + 1;
+				}
+				else
+				{
+					r = m - 1;
+				}
+			}
+
+			// Exact match not found, get span (r and l reversed)
+			Keyframe lkey = this->Keys[r];
+			Keyframe rkey = this->Keys[l];
+
+			float u = (time - lkey.GetTime()) / (rkey.GetTime() - lkey.GetTime());
+			float a = lkey.GetA();
+			float b = lkey.GetB();
+			float c = lkey.getC();
+			float d = lkey.getD();
+
+			return d + u*(c + u*(b + u*(a)));
+		}
 	}
 
 	// Setters /////////////////////////////////////////////////////////////////
+	void SetExtrapIn(std::string extrapIn)   { ExtrapIn = extrapIn; }
+	void SetExtrapOut(std::string extrapOut) { ExtrapOut = extrapOut; }
 
 	// Getters /////////////////////////////////////////////////////////////////
+	const std::vector<Keyframe>& GetKeys() { return Keys; }
+	std::string GetExtrapIn()              { return ExtrapIn; }
+	std::string GetExtrapOut()             { return ExtrapOut; }
 
 private:
 	std::vector<Keyframe> Keys;

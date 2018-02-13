@@ -32,7 +32,7 @@ public:
 		this->TimeStart = token.GetFloat();
 		this->TimeEnd = token.GetFloat();
 		token.FindToken("numchannels");
-		float numChannels = token.GetInt();
+		int numChannels = token.GetInt();
 		std::cout << "Animation with starting at " << this->TimeStart <<
 			" and ending at " << this->TimeEnd << " with " << numChannels << " channels." << std::endl;
 
