@@ -49,10 +49,10 @@ private:
 	ShaderProgram *Program;
 	ShaderProgram *WFProgram;
 	Skeleton *Skell;
-	Skin *Body;
-	Camera *Cam;
 	Animation *Anim;
 	AnimationPlayer *AnimPlayer;
+	Skin *Body;
+	Camera *Cam;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -136,6 +136,8 @@ public:
 
 	// Getters /////////////////////////////////////////////////////////////////
 	Joint* GetRoot() { return Root; }
+	const std::vector<Joint*>& GetJoints() { return Joints; }
+	Joint* GetJoint(unsigned int jointNum) { return Joints[jointNum]; }
 	glm::mat4x4 GetWorldMtx() { return World; }
 
 private:

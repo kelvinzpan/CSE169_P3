@@ -29,12 +29,12 @@ public:
 
 		// Get info
 		token.FindToken("range");
-		this->TimeStart = token.GetFloat();
-		this->TimeEnd = token.GetFloat();
+		this->StartTime = token.GetFloat();
+		this->EndTime = token.GetFloat();
 		token.FindToken("numchannels");
 		int numChannels = token.GetInt();
-		std::cout << "Animation with starting at " << this->TimeStart <<
-			" and ending at " << this->TimeEnd << " with " << numChannels << " channels." << std::endl;
+		std::cout << "Animation with starting at " << this->StartTime <<
+			" and ending at " << this->EndTime << " with " << numChannels << " channels." << std::endl;
 
 		// Parse channels
 		for (int i = 0; i < numChannels; i++)
@@ -54,20 +54,30 @@ public:
 
 	////////////////////////////////////////////////////////////////////////////
 
-	float Evaluate(float time)
+	void Evaluate(float time, std::vector<float>& pose)
 	{
+		if (time < this->StartTime || time > this->EndTime)
+		{
+			std::cerr << "Animation time outside of defined start and end." << std::endl;
+			return;
+		}
 
-
-		return 0.0f;
+		for (unsigned int i = 0; i < pose.size(); i++)
+			pose[i] = this->Channels[i].Evaluate(time);
 	}
 
 	// Setters /////////////////////////////////////////////////////////////////
+	void SetStartTime(float time) { StartTime = time; }
+	void SetEndTime(float time) { EndTime = time; }
 
 	// Getters /////////////////////////////////////////////////////////////////
+	const std::vector<Channel>& GetChannels() { return Channels; }
+	float GetStartTime() { return StartTime; }
+	float GetEndTime() { return EndTime; }
 
 private:
 	std::vector<Channel> Channels;
-	float TimeStart, TimeEnd;
+	float StartTime, EndTime;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

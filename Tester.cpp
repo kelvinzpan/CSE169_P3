@@ -74,9 +74,9 @@ Tester::Tester(const char *windowTitle,int argc,char **argv) {
 		defaultAnim = argv[3];
 	}
 	Skell = new Skeleton(defaultModel);
-	Body = new Skin(defaultSkin, Skell);
 	Anim = new Animation(defaultAnim);
 	AnimPlayer = new AnimationPlayer(Anim, Skell);
+	Body = new Skin(defaultSkin, Skell);
 	Cam=new Camera;
 	Cam->SetAspect(float(WinX)/float(WinY));
 
@@ -88,6 +88,8 @@ Tester::Tester(const char *windowTitle,int argc,char **argv) {
 Tester::~Tester() {
 	delete Program;
 	delete Skell;
+	delete Anim;
+	delete AnimPlayer;
 	delete Body;
 	delete Cam;
 
@@ -100,6 +102,7 @@ Tester::~Tester() {
 void Tester::Update() {
 	// Update the components in the world
 	Skell->Update();
+	AnimPlayer->Update();
 	Body->Update();
 	Cam->Update();
 

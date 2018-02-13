@@ -88,6 +88,10 @@ public:
 		}
 
 		// Finish
+		this->StartTime = this->Keys[0].GetTime();
+		this->EndTime = this->Keys[this->Keys.size() - 1].GetTime();
+		this->StartValue = this->Keys[0].GetValue();
+		this->EndValue = this->Keys[this->Keys.size() - 1].GetValue();
 		return true;
 	}
 
@@ -170,31 +174,31 @@ public:
 	float Evaluate(float time)
 	{
 		// Case 1: before the first key
-		if (time < this->Keys[0].GetTime())
+		if (time < this->StartTime)
 		{
 			// Extrapolate
 			if (this->ExtrapIn == "constant")
 			{
-				return this->Keys[0].GetValue(); // Backwards, get first
+				return this->StartValue; // Backwards, get first
 			}
 			else if (this->ExtrapIn == "linear")
 			{
 				float slope = this->Keys[0].GetTangentOut(); // Backwards, get first
-				float t = this->Keys[0].GetTime();
-				return this->Keys[0].GetValue() - slope * (t - time); // Backwards, subtract
+				float t = this->StartTime;
+				return this->StartValue - slope * (t - time); // Backwards, subtract
 			}
 			else if (this->ExtrapIn == "cycle")
 			{
-				float timeDiff = this->Keys[this->Keys.size() - 1].GetTime() - this->Keys[0].GetTime();
-				while (time < this->Keys[0].GetTime()) time += timeDiff; // Backwards, add
+				float timeDiff = this->EndTime - this->StartTime;
+				while (time < this->StartTime) time += timeDiff; // Backwards, add
 				return this->Evaluate(time);
 			}
 			else if (this->ExtrapIn == "cycle_offset")
 			{
-				float timeDiff = this->Keys[this->Keys.size() - 1].GetTime() - this->Keys[0].GetTime();
-				float valDiff = this->Keys[this->Keys.size() - 1].GetValue() - this->Keys[0].GetValue();
+				float timeDiff = this->EndTime - this->StartTime;
+				float valDiff = this->EndValue - this->StartValue;
 				float offset = 0;
-				while (time < this->Keys[0].GetTime()) // Backwards, add
+				while (time < this->StartTime) // Backwards, add
 				{
 					time += timeDiff;
 					offset -= valDiff; // Backwards, subtract
@@ -203,14 +207,14 @@ public:
 			}
 			else if (this->ExtrapIn == "bounce")
 			{
-				float timeDiff = this->Keys[this->Keys.size() - 1].GetTime() - this->Keys[0].GetTime();
+				float timeDiff = this->EndTime - this->StartTime;
 				int count = 0;
-				while (time < this->Keys[0].GetTime()) { // Backwards, add
+				while (time < this->StartTime) { // Backwards, add
 					time += timeDiff;
 					count++;
 				}
 				if (count % 2 == 0) { // Even, reflect
-					time = this->Keys[0].GetTime() + timeDiff - time;
+					time = this->StartTime + timeDiff - time;
 					return this->Evaluate(time);
 				}
 				else // Odd, keep
@@ -225,31 +229,31 @@ public:
 			}
 		}
 		// Case 2: after the last key
-		else if (time > this->Keys[this->Keys.size() - 1].GetTime())
+		else if (time > this->EndTime)
 		{
 			// Extrapolate
 			if (this->ExtrapOut == "constant")
 			{
-				return this->Keys[this->Keys.size() - 1].GetValue(); // Forwards, get last
+				return this->EndValue; // Forwards, get last
 			}
 			else if (this->ExtrapOut == "linear")
 			{
 				float slope = this->Keys[this->Keys.size() - 1].GetTangentIn(); // Forwards, get last
-				float t = this->Keys[this->Keys.size() - 1].GetTime();
-				return this->Keys[this->Keys.size() - 1].GetValue() + slope * (time - t); // Forwards, add
+				float t = this->EndTime;
+				return this->EndValue + slope * (time - t); // Forwards, add
 			}
 			else if (this->ExtrapOut == "cycle")
 			{
-				float timeDiff = this->Keys[this->Keys.size() - 1].GetTime() - this->Keys[0].GetTime();
-				while (time > this->Keys[this->Keys.size() - 1].GetTime()) time -= timeDiff; // Forwards, subtract
+				float timeDiff = this->EndTime - this->StartTime;
+				while (time > this->EndTime) time -= timeDiff; // Forwards, subtract
 				return this->Evaluate(time);
 			}
 			else if (this->ExtrapOut == "cycle_offset")
 			{
-				float timeDiff = this->Keys[this->Keys.size() - 1].GetTime() - this->Keys[0].GetTime();
-				float valDiff = this->Keys[this->Keys.size() - 1].GetValue() - this->Keys[0].GetValue();
+				float timeDiff = this->EndTime - this->StartTime;
+				float valDiff = this->EndValue - this->StartValue;
 				float offset = 0;
-				while (time > this->Keys[this->Keys.size() - 1].GetTime()) // Forwards, subtract
+				while (time > this->EndTime) // Forwards, subtract
 				{
 					time -= timeDiff;
 					offset += valDiff; // Forwards, add
@@ -258,14 +262,14 @@ public:
 			}
 			else if (this->ExtrapOut == "bounce")
 			{
-				float timeDiff = this->Keys[this->Keys.size() - 1].GetTime() - this->Keys[0].GetTime();
+				float timeDiff = this->EndTime - this->StartTime;
 				int count = 0;
-				while (time > this->Keys[this->Keys.size() - 1].GetTime()) { // Forwards, subtract
+				while (time > this->EndTime) { // Forwards, subtract
 					time += timeDiff;
 					count++;
 				}
 				if (count % 2 == 0) { // Even, reflect
-					time = this->Keys[0].GetTime() + timeDiff - time;
+					time = this->StartTime + timeDiff - time;
 					return this->Evaluate(time);
 				}
 				else // Odd, keep
@@ -334,6 +338,8 @@ public:
 private:
 	std::vector<Keyframe> Keys;
 	std::string ExtrapIn, ExtrapOut;
+	float StartTime, EndTime;
+	float StartValue, EndValue;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
