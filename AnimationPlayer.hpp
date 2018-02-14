@@ -56,8 +56,8 @@ public:
 
 	// Adjust Playback /////////////////////////////////////////////////////////
 	void ResetAnim()     { SetCurrTime(this->Anim->GetStartTime()); }
-	void SpeedUp()       { this->Speed += 0.05f; }
-	void SlowDown()      { this->Speed -= 0.05f; }
+	void SpeedUp()       { this->Speed += 0.025f; }
+	void SlowDown()      { this->Speed -= 0.025f; }
 	void ToggleLooping() { this->IsLooping = !this->IsLooping; }
 	void TogglePause()   { this->IsPaused = !this->IsPaused; }
 
