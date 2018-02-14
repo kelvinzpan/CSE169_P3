@@ -26,6 +26,8 @@ public:
 	void AddParent(Joint * p) { Parent = p; }
 	void AddChild(Joint * c) { Children.push_back(c); }
 
+	void SetPosition(glm::vec3 pos) { Position = pos; }
+
 	const std::vector<DOF*>& GetDOFs() { return DOFs; }
 	Joint* GetParent() { return Parent; }
 	const std::vector<Joint*>& GetChildren() { return Children; }
@@ -51,6 +53,7 @@ private:
 	// Variables
 	glm::mat4x4 LocalMtx;
 	glm::mat4x4 WorldMtx;
+	glm::vec3 Position;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

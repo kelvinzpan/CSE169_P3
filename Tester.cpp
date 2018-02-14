@@ -65,8 +65,8 @@ Tester::Tester(const char *windowTitle,int argc,char **argv) {
 	Program=new ShaderProgram("Model.glsl",ShaderProgram::eRender);
 	WFProgram = new ShaderProgram("Wireframe.glsl", ShaderProgram::eRender);
 
-	char * defaultModel = "./_skels/wasp_old.skel";
-	char * defaultSkin = "./_skins/wasp_old.skin";
+	char * defaultModel = "./_skels/wasp_new.skel";
+	char * defaultSkin = "./_skins/wasp_new.skin";
 	char * defaultAnim = "./_anims/wasp_walk.anim";
 	if (argc > 3) {
 		defaultModel = argv[1];
@@ -159,6 +159,7 @@ void Tester::Keyboard(int key,int x,int y) {
 			break;
 		case 'r':	
 			Reset();
+			std::cout << "Resetting camera position." << std::endl;
 			break;
 		case 'd':
 			Skell->NextDOF();
@@ -177,6 +178,27 @@ void Tester::Keyboard(int key,int x,int y) {
 			break;
 		case 'x':
 			ShowSkell = !ShowSkell;
+			std::cout << "Toggling wireframe view on skeleton." << std::endl;
+			break;
+		case 'p':
+			AnimPlayer->TogglePause();
+			std::cout << "Toggling pause on animation." << std::endl;
+			break;
+		case 'l':
+			AnimPlayer->ToggleLooping();
+			std::cout << "Toggling looping on animation." << std::endl;
+			break;
+		case 'k':
+			AnimPlayer->ResetAnim();
+			std::cout << "Restarting animation." << std::endl;
+			break;
+		case 'o':
+			AnimPlayer->SpeedUp();
+			std::cout << "Increasing animation speed (" << AnimPlayer->GetSpeed() << ")." << std::endl;
+			break;
+		case 'i':
+			AnimPlayer->SlowDown();
+			std::cout << "Decreasing animation speed (" << AnimPlayer->GetSpeed() << ")." << std::endl;
 			break;
 	}
 }

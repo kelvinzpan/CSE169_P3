@@ -22,41 +22,44 @@ public:
 		this->CurrTime = anim->GetStartTime();
 		std::vector<float> pose(3 + skell->GetJoints().size() * 3);
 		this->Pose = pose;
-		this->Speed = 0.1f;
+
+		this->IsLooping = true;
+		this->IsPaused = false;
+		this->Speed = 0.05f;
 	};
 
 	////////////////////////////////////////////////////////////////////////////
 
 	void Update()
 	{
-		// Increment time
-		this->CurrTime += this->Speed;
-		// Currently loop
-		if (this->CurrTime > this->Anim->GetEndTime()) this->CurrTime = this->Anim->GetStartTime();
+		// Increment time, playback options
+		if (!this->IsPaused) this->CurrTime += this->Speed;
+		if (this->IsLooping && 
+			(this->CurrTime > this->Anim->GetEndTime() ||
+			this->CurrTime < this->Anim->GetStartTime()) ) this->CurrTime = this->Anim->GetStartTime();
 
 		// Evaluate animation
 		this->Anim->Evaluate(this->CurrTime, this->Pose);
 
-		//std::cout << "POSE VALUES:";
-		//for (float p : this->Pose) std::cout << " " << p;
-		//std::cout << std::endl;
+		// First 3 DOFs are position
+		Joint* root = this->Skell->GetRoot();
+		root->SetPosition(glm::vec3(this->Pose[0], this->Pose[1], this->Pose[2]));
 
-		// Pose rig
-		for (unsigned int i = 0; i < this->Pose.size(); i++)
+		// Rest of the DOFs are rotations
+		for (unsigned int i = 3; i < this->Pose.size(); i++)
 		{
-			// First three are root translations
-			if (i < 3)
-			{
-			}
-			// Rest are DOF rotations
-			else
-			{
-				int jointNum = (i - 3) / 3;
-				int DOFNum = (i - 3) % 3;
-				this->Skell->GetJoint(jointNum)->GetDOFs()[DOFNum]->SetValue(this->Pose[i]);
-			}
+			int jointNum = (i - 3) / 3;
+			int DOFNum = (i - 3) % 3;
+			this->Skell->GetJoint(jointNum)->GetDOFs()[DOFNum]->SetValue(this->Pose[i]);
 		}
 	}
+
+	// Adjust Playback /////////////////////////////////////////////////////////
+	void ResetAnim()     { SetCurrTime(this->Anim->GetStartTime()); }
+	void SpeedUp()       { this->Speed += 0.05f; }
+	void SlowDown()      { this->Speed -= 0.05f; }
+	void ToggleLooping() { this->IsLooping = !this->IsLooping; }
+	void TogglePause()   { this->IsPaused = !this->IsPaused; }
 
 	// Setters /////////////////////////////////////////////////////////////////
 	void SetAnim(Animation* anim)         { Anim = anim; }
@@ -69,6 +72,7 @@ public:
 	Skeleton* GetSkell()                { return Skell; }
 	float GetCurrTime()                 { return CurrTime; }
 	const std::vector<float>& GetPose() { return Pose; }
+	float GetSpeed()                    { return Speed; }
 
 private:
 	Animation* Anim;
@@ -77,6 +81,8 @@ private:
 	float CurrTime;
 	std::vector<float> Pose;
 	
+	bool IsLooping;
+	bool IsPaused;
 	float Speed;
 };
 

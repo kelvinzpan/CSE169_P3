@@ -18,6 +18,8 @@ public:
 		, RuleIn(ruleIn)
 		, RuleOut(ruleOut)
 	{
+		TangentIn = TangentOut = 0;
+		A = B = C = D = 0;
 	};
 
 	// Setters /////////////////////////////////////////////////////////////////
@@ -44,8 +46,8 @@ public:
 	char GetRuleOut()     { return RuleOut; }
 	float GetA()          { return A; }
 	float GetB()          { return B; }
-	float getC()          { return C; }
-	float getD()          { return D; }
+	float GetC()          { return C; }
+	float GetD()          { return D; }
 
 private:
 	float Time;

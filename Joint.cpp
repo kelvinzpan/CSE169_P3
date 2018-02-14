@@ -16,6 +16,8 @@ Joint::Joint()
 	this->RotYLimit = glm::vec2(-100000, 100000);
 	this->RotZLimit = glm::vec2(-100000, 100000);
 	this->Pose = glm::vec3(0, 0, 0);
+
+	this->Position = glm::vec3(0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -108,7 +110,7 @@ void Joint::MakeLocalMatrix()
 	this->LocalMtx = glm::mat4x4(1);
 
 	// Apply translation
-	glm::mat4x4 toTrans = glm::translate(glm::mat4x4(1), this->Offset);
+	glm::mat4x4 toTrans = glm::translate(glm::mat4x4(1), this->Offset + this->Position);
 
 	// Apply rotations
 	glm::mat4x4 xRot = glm::rotate(glm::mat4x4(1), this->DOFs[0]->GetValue(), glm::vec3(1, 0, 0));

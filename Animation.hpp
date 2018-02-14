@@ -56,12 +56,6 @@ public:
 
 	void Evaluate(float time, std::vector<float>& pose)
 	{
-		if (time < this->StartTime || time > this->EndTime)
-		{
-			std::cerr << "Animation time outside of defined start and end." << std::endl;
-			return;
-		}
-
 		for (unsigned int i = 0; i < pose.size(); i++)
 		{
 			pose[i] = this->Channels[i].Evaluate(time);

@@ -105,70 +105,88 @@ public:
 		// Compute tangents from given rules
 		for (unsigned int i = 0; i < this->Keys.size(); i++)
 		{
-			Keyframe key = this->Keys[i];
+			Keyframe* key = &this->Keys[i];
 
-			// Calculate rule in ///////////////////////////////////////////////
-			if (key.GetRuleIn() == 'f')
+			// CALCULATE TANGENT IN
+			char ruleIn = key->GetRuleIn();
+			if (ruleIn == 'f')
 			{
-				// Fixed tangent
-				key.SetTangentIn(0.0f);
+				key->SetTangentIn(0);
+				//std::cout << i << ": F in, 0" << std::endl;
 			}
-			else if (key.GetRuleIn() == 'l' && i != 0)
+			else if (ruleIn == 'l')
 			{
-				// Linear tangent, invalid for first key
-				Keyframe prevKey = this->Keys[i - 1];
-				key.SetTangentIn((key.GetValue() - prevKey.GetValue()) / (key.GetTime() - prevKey.GetTime()));
+				if (i != 0) // Edge: tanIn cannot be on first
+				{
+					Keyframe prevKey = this->Keys[i - 1];
+					float newTan = (key->GetValue() - prevKey.GetValue()) / (key->GetTime() - prevKey.GetTime());
+					key->SetTangentIn(newTan);
+					//std::cout << i << ": L in, " << newTan << std::endl;
+				}
+			}
+			else if (ruleIn == 's')
+			{
+				if (i != 0 && i != this->Keys.size() - 1) // Edge: tanIn cannot be first or last
+				{
+					Keyframe prevKey = this->Keys[i - 1];
+					Keyframe nextKey = this->Keys[i + 1];
+					float newTan = (nextKey.GetValue() - prevKey.GetValue()) / (nextKey.GetTime() - prevKey.GetTime());
+					key->SetTangentIn(newTan);
+					//std::cout << i << ": S in, " << newTan << std::endl;
+				}
+			}
+			//else if (ruleIn == 'x') std::cout << i << ": X in, " << key->GetTangentIn() << std::endl;
 
-			}
-			else if (key.GetRuleIn() == 's' && i != 0 && i != this->Keys.size() - 1)
+			// CALCULATE TANGENT OUT
+			char ruleOut = key->GetRuleOut();
+			if (ruleOut == 'f')
 			{
-				// Smooth tangent, invalid for first and last keys
-				Keyframe prevKey = this->Keys[i - 1];
-				Keyframe nextKey = this->Keys[i + 1];
-				key.SetTangentIn((nextKey.GetValue() - prevKey.GetValue()) / (nextKey.GetTime() - prevKey.GetTime()));
+				key->SetTangentOut(0);
+				//std::cout << i << ": F out, 0" << std::endl;
 			}
-
-			// Calculate rule out //////////////////////////////////////////////
-			if (key.GetRuleOut() == 'f')
+			else if (ruleOut == 'l')
 			{
-				// Fixed tangent
-				key.SetTangentOut(0.0f);
-			}
-			else if (key.GetRuleOut() == 'l' && i != this->Keys.size() - 1)
-			{
-				// Linear tangent, invalid for last key
-				Keyframe nextKey = this->Keys[i + 1];
-				key.SetTangentOut((nextKey.GetValue() - key.GetValue()) / (nextKey.GetTime() - key.GetTime()));
-
-			}
-			else if (key.GetRuleIn() == 's' && i != 0 && i != this->Keys.size() - 1)
-			{
-				// Smooth tangent, invalid for first and last keys
-				Keyframe prevKey = this->Keys[i - 1];
-				Keyframe nextKey = this->Keys[i + 1];
-				key.SetTangentOut((nextKey.GetValue() - prevKey.GetValue()) / (nextKey.GetTime() - prevKey.GetTime()));
-			}
-
-			// Account for linears and smooths at the end (default to linear)
-			if (true)
-				0;
-			else if (i == 0 && this->Keys.size() > 1)
-			{
-				if (key.GetRuleOut() == 's')
+				if (i != this->Keys.size() - 1) // Edge: tanOut cannot be on last
 				{
 					Keyframe nextKey = this->Keys[i + 1];
-					key.SetTangentIn((nextKey.GetValue() - key.GetValue()) / (nextKey.GetTime() - key.GetTime()));
+					float newTan = (nextKey.GetValue() - key->GetValue()) / (nextKey.GetTime() - key->GetTime());
+					key->SetTangentOut(newTan);
+					//std::cout << i << ": L out, " << newTan << std::endl;
 				}
-				if (key.GetRuleIn() == 'l' || key.GetRuleIn() == 's') key.SetTangentIn(key.GetTangentOut());
+			}
+			else if (ruleOut == 's')
+			{
+				if (i != 0 && i != this->Keys.size() - 1) // Edge: tanIn cannot be first or last
+				{
+					Keyframe prevKey = this->Keys[i - 1];
+					Keyframe nextKey = this->Keys[i + 1];
+					float newTan = (nextKey.GetValue() - prevKey.GetValue()) / (nextKey.GetTime() - prevKey.GetTime());
+					key->SetTangentOut(newTan);
+					//std::cout << i << ": S out, " << newTan << std::endl;
+				}
+			}
+			//else if (ruleOut == 'x') std::cout << i << ": X in, " << key->GetTangentIn() << std::endl;
+
+			// Deal with linear/smooth at ends (Default to linear)
+			if (i == 0 && this->Keys.size() > 1)
+			{
+				if (key->GetRuleOut() == 's')
+				{
+					Keyframe nextKey = this->Keys[i + 1];
+					float newTan = (nextKey.GetValue() - key->GetValue()) / (nextKey.GetTime() - key->GetTime());
+					key->SetTangentOut(newTan);
+				}
+				if (key->GetRuleIn() == 'l' || key->GetRuleIn() == 's') key->SetTangentIn(key->GetTangentOut());
 			}
 			else if (i == this->Keys.size() - 1 && this->Keys.size() > 1)
 			{
-				if (key.GetRuleIn() == 's')
+				if (key->GetRuleIn() == 's')
 				{
 					Keyframe prevKey = this->Keys[i - 1];
-					key.SetTangentIn((key.GetValue() - prevKey.GetValue()) / (key.GetTime() - prevKey.GetTime()));
+					float newTan = (key->GetValue() - prevKey.GetValue()) / (key->GetTime() - prevKey.GetTime());
+					key->SetTangentIn(newTan);
 				}
-				if (key.GetRuleOut() == 'l' || key.GetRuleOut() == 's') key.SetTangentOut(key.GetTangentIn());
+				if (key->GetRuleOut() == 'l' || key->GetRuleOut() == 's') key->SetTangentOut(key->GetTangentIn());
 			}
 		}
 
@@ -179,38 +197,33 @@ public:
 		hermiteMat[2] = { 1, -2, 1, 0 };
 		hermiteMat[3] = { 1, -1, 0, 0 };
 
-		if (this->Keys.size() == 1) std::cout << "ONE KEYFRAME ==============================" << std::endl;
-		else std::cout << "MULTIPLE KEYFRAMES ==============================" << std::endl;
-
 		// First keyframe in each span holds the coefficients
-		for (unsigned int i = 0; i < this->Keys.size() - 1; i++)
+		for (unsigned int i = 0; i < this->Keys.size(); i++)
 		{
-			Keyframe key = this->Keys[i];
-			Keyframe nextKey = this->Keys[i + 1];
+			Keyframe* key = &this->Keys[i];
+			glm::vec4 coeffs;
 
-			float timeDiff = nextKey.GetTime() - key.GetTime();
-			glm::vec4 hermiteVec = glm::vec4(
-				key.GetValue(),
-				nextKey.GetValue(),
-				timeDiff * key.GetTangentOut(),
-				timeDiff * nextKey.GetTangentIn());
-			glm::vec4 coeffs = hermiteMat * hermiteVec;
+			if (i == this->Keys.size() - 1)
+			{
+				// Already set to 0 in Keyframe constructor
+			}
+			else
+			{
+				Keyframe nextKey = this->Keys[i + 1];
+				float timeDiff = nextKey.GetTime() - key->GetTime();
+				glm::vec4 hermiteVec = glm::vec4(
+					key->GetValue(),
+					nextKey.GetValue(),
+					timeDiff * key->GetTangentOut(),
+					timeDiff * nextKey.GetTangentIn());
+				coeffs = hermiteMat * hermiteVec;
+			}
 
-			//glm::vec4 coeffs;
-			//float p0 = key.GetValue();
-			//float p1 = nextKey.GetValue();
-			//float tv0 = (nextKey.GetTime() - key.GetTime()) * key.GetTangentOut();
-			//float tv1 = (nextKey.GetTime() - key.GetTime()) * nextKey.GetTangentIn();
-			//coeffs.x = 2*p0 - 2*p1 + tv0 + tv1;
-			//coeffs.y = -3*p0 + 3*p1 - 2*tv0 - tv1;
-			//coeffs.z = tv0;
-			//coeffs.w = p0;
-			//key.SetCubicCoeff(coeffs.x, coeffs.y, coeffs.z, coeffs.w);
-
-			std::cout << "KEYFRAME " << i << ": Rule in: " << key.GetRuleIn() << ", Tan in: " << key.GetTangentIn() <<
-				", Rule out: " << key.GetRuleOut() << ", Tan out: " << key.GetTangentOut() << std::endl;
-			printVec4(coeffs);
-			std::cout << std::endl;
+			key->SetCubicCoeff(coeffs.x, coeffs.y, coeffs.z, coeffs.w);
+			//std::cout << "KEYFRAME " << i << ": Rule in: " << key->GetRuleIn() << ", Tan in: " << key->GetTangentIn() <<
+			//	", Rule out: " << key->GetRuleOut() << ", Tan out: " << key->GetTangentOut() << std::endl;
+			//printVec4(glm::vec4(key->GetA(), key->GetB(), key->GetC(), key->GetD()));
+			//std::cout << std::endl;
 		}
 	}
 
@@ -368,8 +381,8 @@ public:
 			float u = (time - lkey.GetTime()) / (rkey.GetTime() - lkey.GetTime());
 			float a = lkey.GetA();
 			float b = lkey.GetB();
-			float c = lkey.getC();
-			float d = lkey.getD();
+			float c = lkey.GetC();
+			float d = lkey.GetD();
 
 			float x = d + u*(c + u*(b + u*(a)));
 			return x;
