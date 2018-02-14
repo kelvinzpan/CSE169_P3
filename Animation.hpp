@@ -63,7 +63,9 @@ public:
 		}
 
 		for (unsigned int i = 0; i < pose.size(); i++)
+		{
 			pose[i] = this->Channels[i].Evaluate(time);
+		}
 	}
 
 	// Setters /////////////////////////////////////////////////////////////////

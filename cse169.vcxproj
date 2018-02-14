@@ -58,11 +58,13 @@
     <None Include="_skels\head.skel" />
     <None Include="_skels\test.skel" />
     <None Include="_skels\tube.skel" />
-    <None Include="_skels\wasp.skel" />
+    <None Include="_skels\wasp_new.skel" />
+    <None Include="_skels\wasp_old.skel" />
     <None Include="_skins\head.skin" />
     <None Include="_skins\triangle.skin" />
     <None Include="_skins\tube_smooth.skin" />
-    <None Include="_skins\wasp.skin" />
+    <None Include="_skins\wasp_new.skin" />
+    <None Include="_skins\wasp_old.skin" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{41B34E76-1F31-4835-8A87-F05EA3E9FA03}</ProjectGuid>

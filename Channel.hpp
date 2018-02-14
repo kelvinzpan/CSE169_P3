@@ -78,6 +78,8 @@ public:
 
 			// Make keyframe
 			Keyframe newKey = Keyframe(time, value, tanIn, tanOut);
+			newKey.SetRuleIn(tanIn);
+			newKey.SetRuleOut(tanOut);
 			newKey.SetTangentIn(tanInVal);
 			newKey.SetTangentOut(tanOutVal);
 			this->Keys.push_back(newKey);
@@ -92,6 +94,7 @@ public:
 		this->EndTime = this->Keys[this->Keys.size() - 1].GetTime();
 		this->StartValue = this->Keys[0].GetValue();
 		this->EndValue = this->Keys[this->Keys.size() - 1].GetValue();
+		this->Precompute();
 		return true;
 	}
 
@@ -104,7 +107,7 @@ public:
 		{
 			Keyframe key = this->Keys[i];
 
-			// Calculate rule in
+			// Calculate rule in ///////////////////////////////////////////////
 			if (key.GetRuleIn() == 'f')
 			{
 				// Fixed tangent
@@ -125,17 +128,17 @@ public:
 				key.SetTangentIn((nextKey.GetValue() - prevKey.GetValue()) / (nextKey.GetTime() - prevKey.GetTime()));
 			}
 
-			// Calculate rule out
+			// Calculate rule out //////////////////////////////////////////////
 			if (key.GetRuleOut() == 'f')
 			{
 				// Fixed tangent
-				key.SetTangentIn(0.0f);
+				key.SetTangentOut(0.0f);
 			}
 			else if (key.GetRuleOut() == 'l' && i != this->Keys.size() - 1)
 			{
 				// Linear tangent, invalid for last key
 				Keyframe nextKey = this->Keys[i + 1];
-				key.SetTangentIn((nextKey.GetValue() - key.GetValue()) / (nextKey.GetTime() - key.GetTime()));
+				key.SetTangentOut((nextKey.GetValue() - key.GetValue()) / (nextKey.GetTime() - key.GetTime()));
 
 			}
 			else if (key.GetRuleIn() == 's' && i != 0 && i != this->Keys.size() - 1)
@@ -143,7 +146,29 @@ public:
 				// Smooth tangent, invalid for first and last keys
 				Keyframe prevKey = this->Keys[i - 1];
 				Keyframe nextKey = this->Keys[i + 1];
-				key.SetTangentIn((nextKey.GetValue() - prevKey.GetValue()) / (nextKey.GetTime() - prevKey.GetTime()));
+				key.SetTangentOut((nextKey.GetValue() - prevKey.GetValue()) / (nextKey.GetTime() - prevKey.GetTime()));
+			}
+
+			// Account for linears and smooths at the end (default to linear)
+			if (true)
+				0;
+			else if (i == 0 && this->Keys.size() > 1)
+			{
+				if (key.GetRuleOut() == 's')
+				{
+					Keyframe nextKey = this->Keys[i + 1];
+					key.SetTangentIn((nextKey.GetValue() - key.GetValue()) / (nextKey.GetTime() - key.GetTime()));
+				}
+				if (key.GetRuleIn() == 'l' || key.GetRuleIn() == 's') key.SetTangentIn(key.GetTangentOut());
+			}
+			else if (i == this->Keys.size() - 1 && this->Keys.size() > 1)
+			{
+				if (key.GetRuleIn() == 's')
+				{
+					Keyframe prevKey = this->Keys[i - 1];
+					key.SetTangentIn((key.GetValue() - prevKey.GetValue()) / (key.GetTime() - prevKey.GetTime()));
+				}
+				if (key.GetRuleOut() == 'l' || key.GetRuleOut() == 's') key.SetTangentOut(key.GetTangentIn());
 			}
 		}
 
@@ -154,6 +179,9 @@ public:
 		hermiteMat[2] = { 1, -2, 1, 0 };
 		hermiteMat[3] = { 1, -1, 0, 0 };
 
+		if (this->Keys.size() == 1) std::cout << "ONE KEYFRAME ==============================" << std::endl;
+		else std::cout << "MULTIPLE KEYFRAMES ==============================" << std::endl;
+
 		// First keyframe in each span holds the coefficients
 		for (unsigned int i = 0; i < this->Keys.size() - 1; i++)
 		{
@@ -161,11 +189,28 @@ public:
 			Keyframe nextKey = this->Keys[i + 1];
 
 			float timeDiff = nextKey.GetTime() - key.GetTime();
-			glm::vec4 hermiteVec = glm::vec4(key.GetValue(), nextKey.GetValue(),
-				timeDiff * key.GetTangentOut(), timeDiff * nextKey.GetTangentIn());
-			hermiteVec = hermiteMat * hermiteVec;
+			glm::vec4 hermiteVec = glm::vec4(
+				key.GetValue(),
+				nextKey.GetValue(),
+				timeDiff * key.GetTangentOut(),
+				timeDiff * nextKey.GetTangentIn());
+			glm::vec4 coeffs = hermiteMat * hermiteVec;
 
-			key.SetCubicCoeff(hermiteVec.x, hermiteVec.y, hermiteVec.z, hermiteVec.w);
+			//glm::vec4 coeffs;
+			//float p0 = key.GetValue();
+			//float p1 = nextKey.GetValue();
+			//float tv0 = (nextKey.GetTime() - key.GetTime()) * key.GetTangentOut();
+			//float tv1 = (nextKey.GetTime() - key.GetTime()) * nextKey.GetTangentIn();
+			//coeffs.x = 2*p0 - 2*p1 + tv0 + tv1;
+			//coeffs.y = -3*p0 + 3*p1 - 2*tv0 - tv1;
+			//coeffs.z = tv0;
+			//coeffs.w = p0;
+			//key.SetCubicCoeff(coeffs.x, coeffs.y, coeffs.z, coeffs.w);
+
+			std::cout << "KEYFRAME " << i << ": Rule in: " << key.GetRuleIn() << ", Tan in: " << key.GetTangentIn() <<
+				", Rule out: " << key.GetRuleOut() << ", Tan out: " << key.GetTangentOut() << std::endl;
+			printVec4(coeffs);
+			std::cout << std::endl;
 		}
 	}
 
@@ -183,7 +228,7 @@ public:
 			}
 			else if (this->ExtrapIn == "linear")
 			{
-				float slope = this->Keys[0].GetTangentOut(); // Backwards, get first
+				float slope = this->Keys[0].GetTangentIn(); // Backwards, get first
 				float t = this->StartTime;
 				return this->StartValue - slope * (t - time); // Backwards, subtract
 			}
@@ -213,11 +258,11 @@ public:
 					time += timeDiff;
 					count++;
 				}
-				if (count % 2 == 0) { // Even, reflect
-					time = this->StartTime + timeDiff - time;
+				if (count % 2 == 1) { // Odd, reflect
+					time = this->StartTime + (timeDiff - time);
 					return this->Evaluate(time);
 				}
-				else // Odd, keep
+				else // Even, keep
 				{
 					return this->Evaluate(time);
 				}
@@ -238,7 +283,7 @@ public:
 			}
 			else if (this->ExtrapOut == "linear")
 			{
-				float slope = this->Keys[this->Keys.size() - 1].GetTangentIn(); // Forwards, get last
+				float slope = this->Keys[this->Keys.size() - 1].GetTangentOut(); // Forwards, get last
 				float t = this->EndTime;
 				return this->EndValue + slope * (time - t); // Forwards, add
 			}
@@ -265,14 +310,14 @@ public:
 				float timeDiff = this->EndTime - this->StartTime;
 				int count = 0;
 				while (time > this->EndTime) { // Forwards, subtract
-					time += timeDiff;
+					time -= timeDiff;
 					count++;
 				}
-				if (count % 2 == 0) { // Even, reflect
-					time = this->StartTime + timeDiff - time;
+				if (count % 2 == 1) { // Odd, reflect
+					time = this->StartTime + (timeDiff - time);
 					return this->Evaluate(time);
 				}
-				else // Odd, keep
+				else // Even, keep
 				{
 					return this->Evaluate(time);
 				}
@@ -292,23 +337,27 @@ public:
 
 			while (l <= r)
 			{
-				int m = l + (r - l) / 2;
+				int m = (l + r) / 2;
 				Keyframe mkey = this->Keys[m];
+
+				//std::cout << "Left is " << l << " and right is " << r << " and m is " << m << std::endl;
+				//std::cout << "Time is " << time << " and mkey time is " << mkey.GetTime() << std::endl;
 
 				// Exact match
 				if (mkey.GetTime() == time)
 				{
+					//if (m!= 0) std::cout << "Found Keyframe " << m << "!" << std::endl;
 					return mkey.GetValue();
 				}
 
 				// Keep searching
-				if (mkey.GetTime() < time)
+				if (time < mkey.GetTime())
 				{
-					l = m + 1;
+					r = m - 1;
 				}
 				else
 				{
-					r = m - 1;
+					l = m + 1;
 				}
 			}
 
@@ -322,7 +371,8 @@ public:
 			float c = lkey.getC();
 			float d = lkey.getD();
 
-			return d + u*(c + u*(b + u*(a)));
+			float x = d + u*(c + u*(b + u*(a)));
+			return x;
 		}
 	}
 

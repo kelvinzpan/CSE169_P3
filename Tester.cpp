@@ -65,8 +65,8 @@ Tester::Tester(const char *windowTitle,int argc,char **argv) {
 	Program=new ShaderProgram("Model.glsl",ShaderProgram::eRender);
 	WFProgram = new ShaderProgram("Wireframe.glsl", ShaderProgram::eRender);
 
-	char * defaultModel = "./_skels/wasp.skel";
-	char * defaultSkin = "./_skins/wasp.skin";
+	char * defaultModel = "./_skels/wasp_old.skel";
+	char * defaultSkin = "./_skins/wasp_old.skin";
 	char * defaultAnim = "./_anims/wasp_walk.anim";
 	if (argc > 3) {
 		defaultModel = argv[1];

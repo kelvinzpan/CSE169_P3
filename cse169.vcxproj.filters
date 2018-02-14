@@ -113,13 +113,7 @@
     <None Include="_skels\test.skel">
       <Filter>_skel Files</Filter>
     </None>
-    <None Include="_skels\wasp.skel">
-      <Filter>_skel Files</Filter>
-    </None>
     <None Include="_skins\tube_smooth.skin">
-      <Filter>_skin Files</Filter>
-    </None>
-    <None Include="_skins\wasp.skin">
       <Filter>_skin Files</Filter>
     </None>
     <None Include="_skels\tube.skel">
@@ -148,6 +142,18 @@
     </None>
     <None Include="_anims\sample.anim">
       <Filter>_anim Files</Filter>
+    </None>
+    <None Include="_skels\wasp_new.skel">
+      <Filter>_skel Files</Filter>
+    </None>
+    <None Include="_skels\wasp_old.skel">
+      <Filter>_skel Files</Filter>
+    </None>
+    <None Include="_skins\wasp_new.skin">
+      <Filter>_skin Files</Filter>
+    </None>
+    <None Include="_skins\wasp_old.skin">
+      <Filter>_skin Files</Filter>
     </None>
   </ItemGroup>
 </Project>

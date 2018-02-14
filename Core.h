@@ -35,6 +35,11 @@ static void printVec3(glm::vec3 vec)
 	std::cout << "(" << vec.x << ", " << vec.y << ", " << vec.z << ")" << std::endl;
 }
 
+static void printVec4(glm::vec4 vec)
+{
+	std::cout << "(" << vec.x << ", " << vec.y << ", " << vec.z << ", " << vec.w << ")" << std::endl;
+}
+
 static void printMat4(glm::mat4x4 mat)
 {
 	std::cout <<
